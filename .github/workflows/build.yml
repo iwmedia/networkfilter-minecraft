@@ -9,7 +9,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
     strategy:
       matrix:
-        java: [ "17" ]
+        java: [ "21" ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
           PACKAGES_USERNAME: ${{ secrets.PACKAGES_USERNAME }}
           PACKAGES_PASSWORD: ${{ secrets.PACKAGES_PASSWORD }}
 
-#      - uses: sarisia/actions-status-discord@v1
-#        if: failure()
-#        with:
-#          webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
+      - uses: sarisia/actions-status-discord@v1
+        if: failure()
+        with:
+          webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
