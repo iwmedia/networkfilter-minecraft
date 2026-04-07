@@ -18,6 +18,7 @@ public class RedisCache implements Cache {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final UnifiedJedis unifiedJedis;
+    private boolean sentineled = false;
     private final Duration expireAfterWrite;
 
     private static final int SENTINEL_DEFAULT_PORT = 26379;
@@ -26,7 +27,6 @@ public class RedisCache implements Cache {
         this.unifiedJedis = new JedisPooled(uri);
 
         this.expireAfterWrite = expireAfterWrite;
-
         // Close the JedisPool when the JVM is shutting down
         Runtime.getRuntime().addShutdownHook(new Thread(this.unifiedJedis::close));
     }
@@ -42,13 +42,19 @@ public class RedisCache implements Cache {
 
         this.unifiedJedis = new JedisSentineled(masterName, jedisConfig(username, password, ssl),
                 sentinels, jedisConfig(sentinelUsername, sentinelPassword, ssl));
+
+        this.sentineled = true;
     }
 
     private static HostAndPort parseAddress(String address) {
-        return parseAddress(address, Protocol.DEFAULT_PORT);
+        return parseAddress(address, SENTINEL_DEFAULT_PORT);
     }
 
-    private static HostAndPort parseAddress(String address, int defaultPort) {
+    private static HostAndPort parseAddress(@NotNull String address, int defaultPort) {
+        if(address.lastIndexOf(':') > 0){
+            return HostAndPort.from(address);
+        }
+
         return new HostAndPort(address, defaultPort);
     }
 
@@ -63,7 +69,8 @@ public class RedisCache implements Cache {
 
     @Override
     public @NotNull String getName() {
-        return "redis";
+
+        return sentineled ? "redis_sentineled" : "redis";
     }
 
     @Override
