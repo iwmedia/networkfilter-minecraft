@@ -7,6 +7,7 @@ public enum CacheType {
     DISABLED("disabled"),
     LOCAL("local"),
     REDIS("redis"),
+    REDIS_SENTINELED("redis_sentineled")
     ;
 
     private final String key;
