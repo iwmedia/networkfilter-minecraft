@@ -17,6 +17,16 @@ caches:
     uri: "redis://user:password@localhost:6379"
     cacheTimeMinutes: 15
 
+  sentinel:
+    master: mymaster
+    addresses:
+      - localhost:26379
+    username: ''
+    password: ''
+    cacheTimeMinutes: 15
+    ssl: false
+
+
 services:
   # https://nf.ni.ls
   networkfilter:
