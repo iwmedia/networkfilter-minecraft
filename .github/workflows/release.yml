@@ -56,14 +56,15 @@ jobs:
         if: steps.release.outcome == 'success' && steps.release.conclusion == 'success'
 
       - name: Build with Maven
-        run: mvn -B source:jar package
+        run: mvn -B package
         env:
           PACKAGES_USERNAME: ${{ secrets.PACKAGES_USERNAME }}
           PACKAGES_PASSWORD: ${{ secrets.PACKAGES_PASSWORD }}
         if: steps.release.outcome == 'success' && steps.release.conclusion == 'success'
 
+      # source:jar and javadoc:jar must run in the same invocation as deploy, attached artifacts do not survive a separate maven run
       - name: Publish package to github
-        run: mvn -B deploy
+        run: mvn -B source:jar javadoc:jar deploy -Ddoclint=none -Dmaven.javadoc.failOnError=false
         env:
           PUBLISH_TO_GITHUB: ${{ secrets.PUBLISH_TO_GITHUB }}
           PACKAGES_USERNAME: $GITHUB_ACTOR
